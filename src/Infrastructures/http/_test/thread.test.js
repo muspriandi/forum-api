@@ -1,3 +1,4 @@
+const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const pool = require('../../database/postgres/pool');
@@ -10,8 +11,9 @@ describe('/threads endpoint', () => {
   });
 
   afterEach(async () => {
-    await ThreadsTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
   });
 
   describe('when POST /threads', () => {
@@ -367,6 +369,60 @@ describe('/threads endpoint', () => {
       expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual('fail');
       expect(responseJson.message).toEqual('thread tidak tersedia');
+    });
+  });
+
+  describe('when GET /threads/{threadId}', () => {
+    it('should response 200 and return thread detail with comments', async () => {
+      // Arrange
+      const server = await createServer(container);
+  
+      // Seed thread and comments
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'dicoding' });
+      await ThreadsTableTestHelper.addThread({
+        id: 'thread-123',
+        title: 'sebuah thread',
+        body: 'sebuah body thread',
+        owner: 'user-123',
+      });
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-123',
+        content: 'sebuah comment',
+        thread_id: 'thread-123',
+        owner: 'user-123',
+      });
+  
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: `/threads/thread-123`,
+      });
+  
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+      expect(responseJson.data.thread.id).toEqual('thread-123');
+      expect(responseJson.data.thread.title).toEqual('sebuah thread');
+      expect(responseJson.data.thread.comments).toBeInstanceOf(Array);
+      expect(responseJson.data.thread.comments[0].content).toEqual('sebuah comment');
+    });
+  
+    it('should response 404 when thread not found', async () => {
+      // Arrange
+      const server = await createServer(container);
+  
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: '/threads/thread-not-exist',
+      });
+  
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toBeDefined();
     });
   });
   

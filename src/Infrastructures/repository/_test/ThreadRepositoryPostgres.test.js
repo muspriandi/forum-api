@@ -73,4 +73,55 @@ describe('ThreadRepositoryPostgres', () => {
       await expect(threadRepositoryPostgres.existThread('thread-456')).rejects.toThrowError(NotFoundError);
     });
   });
+
+  describe('getThreadDetailById', () => {
+    it('should return thread and comments correctly', async () => {
+      // Arrange
+      const mockPool = {
+        query: jest.fn(),
+      };
+  
+      const fakeRows = [
+        {
+          thread_id: 'thread-123',
+          title: 'Judul Thread',
+          body: 'Isi Thread',
+          thread_created_at: new Date('2021-08-08T07:19:09.775Z'),
+          thread_username: 'dicoding',
+          comment_id: 'comment-123',
+          content: 'Komentar pertama',
+          comment_created_at: new Date('2021-08-08T07:22:33.555Z'),
+          comment_username: 'johndoe',
+        },
+      ];
+  
+      mockPool.query.mockResolvedValue({ rows: fakeRows });
+  
+      const threadRepository = new ThreadRepositoryPostgres(mockPool, {});
+  
+      // Act
+      const result = await threadRepository.getThreadDetailById('thread-123');
+  
+      // Assert
+      expect(mockPool.query).toHaveBeenCalledWith(expect.objectContaining({
+        text: expect.stringContaining('SELECT'),
+        values: ['thread-123'],
+      }));
+      expect(result).toEqual(fakeRows);
+    });
+  
+    it('should throw NotFoundError when thread does not exist', async () => {
+      // Arrange
+      const mockPool = {
+        query: jest.fn().mockResolvedValue({ rows: [] }),
+      };
+  
+      const threadRepository = new ThreadRepositoryPostgres(mockPool, {});
+  
+      // Act & Assert
+      await expect(threadRepository.getThreadDetailById('non-existent-thread'))
+        .rejects
+        .toThrow(NotFoundError);
+    });
+  });
 });
