@@ -20,17 +20,22 @@ describe('DomainErrorTranslator', () => {
       .toStrictEqual(new InvariantError('tidak dapat membuat thread baru karena karakter title melebihi batas limit'));
     expect(DomainErrorTranslator.translate(new Error('ADDED_THREAD.NOT_CONTAIN_NEEDED_PROPERTY')))
       .toStrictEqual(new InvariantError('harus mengirimkan id, title dan owner'));
-      expect(DomainErrorTranslator.translate(new Error('ADDED_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION')))
-        .toStrictEqual(new InvariantError('id, title dan owner harus string'));
+    expect(DomainErrorTranslator.translate(new Error('ADDED_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION')))
+      .toStrictEqual(new InvariantError('id, title dan owner harus string'));
         
     expect(DomainErrorTranslator.translate(new Error('ADD_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY')))
-    .toStrictEqual(new InvariantError('tidak dapat membuat comment baru karena properti yang dibutuhkan tidak ada'));
-  expect(DomainErrorTranslator.translate(new Error('ADD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION')))
-    .toStrictEqual(new InvariantError('tidak dapat membuat comment baru karena tipe data tidak sesuai'));
-  expect(DomainErrorTranslator.translate(new Error('ADDED_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY')))
-    .toStrictEqual(new InvariantError('harus mengirimkan id, content dan owner'));
+      .toStrictEqual(new InvariantError('tidak dapat membuat comment baru karena properti yang dibutuhkan tidak ada'));
+    expect(DomainErrorTranslator.translate(new Error('ADD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION')))
+      .toStrictEqual(new InvariantError('tidak dapat membuat comment baru karena tipe data tidak sesuai'));
+    expect(DomainErrorTranslator.translate(new Error('ADDED_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY')))
+      .toStrictEqual(new InvariantError('harus mengirimkan id, content dan owner'));
     expect(DomainErrorTranslator.translate(new Error('ADDED_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION')))
       .toStrictEqual(new InvariantError('id, content dan owner harus string'));
+
+    expect(DomainErrorTranslator.translate(new Error('DELETE_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY')))
+      .toStrictEqual(new InvariantError('tidak dapat menghapus comment karena properti yang dibutuhkan tidak ada'));
+    expect(DomainErrorTranslator.translate(new Error('DELETE_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION')))
+      .toStrictEqual(new InvariantError('tidak dapat menghapus comment karena tipe data tidak sesuai'));
   });
 
   it('should return original error when error message is not needed to translate', () => {

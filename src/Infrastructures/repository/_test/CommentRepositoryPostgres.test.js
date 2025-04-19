@@ -3,6 +3,7 @@ const AddComment = require('../../../Domains/comments/entities/AddComment');
 const AddedComment = require('../../../Domains/comments/entities/AddedComment');
 const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
+const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 
 describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
@@ -51,6 +52,36 @@ describe('CommentRepositoryPostgres', () => {
         content: 'content',
         owner: 'user-123',
       }));
+    });
+  });
+
+  describe('findActiveCommentById function', () => {
+    it('should return data when comment available', async () => {
+      // Arrange
+      await CommentsTableTestHelper.addComment({ id: 'comment-123' });
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(commentRepositoryPostgres.findActiveCommentById('comment-123')).resolves.toHaveLength(1);
+    });
+  });
+
+  describe('deleteCommentById function', () => {
+    it('should delete when comment is found', async () => {
+      // Arrange
+      await CommentsTableTestHelper.addComment({ id: 'comment-123' });
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(commentRepositoryPostgres.deleteCommentById('comment-123')).resolves.not.toThrowError(NotFoundError);
+    });
+
+    it('should throw NotFoundError when comment is not found', async () => {
+      // Arrange
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(commentRepositoryPostgres.deleteCommentById('comment-123')).rejects.toThrowError(NotFoundError);
     });
   });
 });

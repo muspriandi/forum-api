@@ -28,6 +28,11 @@ exports.up = (pgm) => {
         notNull: true,
         default: pgm.func('current_timestamp'),
       },
+      deleted_at: {
+        type: 'TIMESTAMP',
+        notNull: false,
+        default: null,
+      },
     });
   };
   

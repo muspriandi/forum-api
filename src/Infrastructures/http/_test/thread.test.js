@@ -1,4 +1,5 @@
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const pool = require('../../database/postgres/pool');
 const container = require('../../container');
 const createServer = require('../createServer');
@@ -10,6 +11,7 @@ describe('/threads endpoint', () => {
 
   afterEach(async () => {
     await ThreadsTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
   });
 
   describe('when POST /threads', () => {
@@ -148,7 +150,7 @@ describe('/threads endpoint', () => {
     });
   });
 
-  describe('when POST /threads/{id}/comments', () => {
+  describe('when POST /threads/{thread_id}/comments', () => {
 
     it('should response 201 and persisted comment', async () => {
       // Arrange
@@ -266,4 +268,106 @@ describe('/threads endpoint', () => {
       expect(responseJson.message).toEqual('thread tidak tersedia');
     });
   })
+
+  describe('when DELETE /threads/{thread_id}/comments/{comment_id}', () => {
+    it('should respond 200 and delete the comment successfully', async () => {
+      // Arrange
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', thread_id: 'thread-123', owner: 'user-123' });
+    
+      const server = await createServer(container);
+    
+      // Act
+      const response = await server.inject({
+        method: 'DELETE',
+        url: '/threads/thread-123/comments/comment-123',
+        auth: {
+          strategy: 'forum-api_jwt',
+          credentials: {
+            id: 'user-123',
+          },
+        },
+      });
+    
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual('success');
+    });
+
+    it('should respond 403 if user is not the comment owner', async () => {
+      // Arrange
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-abc' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', thread_id: 'thread-123', owner: 'user-abc' });
+    
+      const server = await createServer(container);
+    
+      // Act
+      const response = await server.inject({
+        method: 'DELETE',
+        url: '/threads/thread-123/comments/comment-123',
+        auth: {
+          strategy: 'forum-api_jwt',
+          credentials: {
+            id: 'user-xyz', // Not the owner
+          },
+        },
+      });
+    
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('Anda tidak berhak mengakses resource ini');
+    });
+
+    it('should respond 404 if the comment does not exist', async () => {
+      // Arrange
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+
+      const server = await createServer(container);
+
+      // Act
+      const response = await server.inject({
+        method: 'DELETE',
+        url: '/threads/thread-123/comments/nonexistent-comment',
+        auth: {
+          strategy: 'forum-api_jwt',
+          credentials: {
+            id: 'user-123',
+          },
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('comment tidak tersedia');
+    });
+
+    it('should respond 404 if the thread does not exist', async () => {
+      // Arrange
+      const server = await createServer(container);
+
+      // Act
+      const response = await server.inject({
+        method: 'DELETE',
+        url: '/threads/nonexistent-thread/comments/comment-123',
+        auth: {
+          strategy: 'forum-api_jwt',
+          credentials: {
+            id: 'user-123',
+          },
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual('fail');
+      expect(responseJson.message).toEqual('thread tidak tersedia');
+    });
+  });
+  
 });
