@@ -50,9 +50,9 @@ describe('AddThreadUseCase', () => {
       body: 'thread-body',
     };
 
-    const useCase = new AddThreadUseCase({ threadRepository: {} });
+    const addThreadUseCase = new AddThreadUseCase({ threadRepository: {} });
 
-    await expect(useCase.execute(userId, invalidPayload))
+    await expect(addThreadUseCase.execute(userId, invalidPayload))
       .rejects
       .toThrowError('ADD_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
   });
@@ -63,9 +63,9 @@ describe('AddThreadUseCase', () => {
       title: 'thread-title',
     };
 
-    const useCase = new AddThreadUseCase({ threadRepository: {} });
+    const addThreadUseCase = new AddThreadUseCase({ threadRepository: {} });
 
-    await expect(useCase.execute(userId, invalidPayload))
+    await expect(addThreadUseCase.execute(userId, invalidPayload))
       .rejects
       .toThrowError('ADD_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
   });
@@ -77,9 +77,9 @@ describe('AddThreadUseCase', () => {
       body: ['not', 'a', 'string'],
     };
 
-    const useCase = new AddThreadUseCase({ threadRepository: {} });
+    const addThreadUseCase = new AddThreadUseCase({ threadRepository: {} });
 
-    await expect(useCase.execute(userId, invalidPayload))
+    await expect(addThreadUseCase.execute(userId, invalidPayload))
       .rejects
       .toThrowError('ADD_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
   });
@@ -92,9 +92,9 @@ describe('AddThreadUseCase', () => {
       body: 'valid body',
     };
 
-    const useCase = new AddThreadUseCase({ threadRepository: {} });
+    const addThreadUseCase = new AddThreadUseCase({ threadRepository: {} });
 
-    await expect(useCase.execute(userId, invalidPayload))
+    await expect(addThreadUseCase.execute(userId, invalidPayload))
       .rejects
       .toThrowError('ADD_THREAD.title_LIMIT_CHAR');
   });

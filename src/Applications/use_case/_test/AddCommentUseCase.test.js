@@ -19,7 +19,7 @@ describe('AddCommentUseCase', () => {
     const mockAddedComment = new AddedComment({
       id: 'comment-123',
       content: useCasePayload.content,
-      owner: 'user-123',
+      owner: userId,
     });
 
     /** creating dependency of use case */
@@ -57,12 +57,9 @@ describe('AddCommentUseCase', () => {
       content: 'content',
     };
 
-    const mockCommentRepository = new CommentRepository();
-    const mockThreadRepository = new ThreadRepository();
-
     const addCommentUseCase = new AddCommentUseCase({
-      commentRepository: mockCommentRepository,
-      threadRepository: mockThreadRepository,
+      commentRepository: new CommentRepository(),
+      threadRepository: new ThreadRepository(),
     });
 
     await expect(addCommentUseCase.execute(userId, invalidPayload))
@@ -77,12 +74,9 @@ describe('AddCommentUseCase', () => {
       content: 'content',
     };
 
-    const mockCommentRepository = new CommentRepository();
-    const mockThreadRepository = new ThreadRepository();
-
     const addCommentUseCase = new AddCommentUseCase({
-      commentRepository: mockCommentRepository,
-      threadRepository: mockThreadRepository,
+      commentRepository: new CommentRepository(),
+      threadRepository: new ThreadRepository(),
     });
 
     await expect(addCommentUseCase.execute(userId, invalidPayload))

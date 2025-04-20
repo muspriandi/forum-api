@@ -18,7 +18,7 @@ describe('DeleteCommentUseCase', () => {
         id: 'comment-123',
         thread_id: 'thread-123',
         content: 'content',
-        owner: 'user-123',
+        owner: userId,
       }
     ];
 
@@ -76,6 +76,11 @@ describe('DeleteCommentUseCase', () => {
     // Action & Assert
     await expect(deleteCommentUseCase.execute(userId, useCasePayload))
       .rejects.toThrowError('comment tidak tersedia');
+
+    // Verify the mock calls
+    expect(mockThreadRepository.existThread).toBeCalledWith(useCasePayload.thread_id);
+    expect(mockCommentRepository.findActiveCommentByIdAndUser)
+      .toBeCalledWith(userId, useCasePayload.comment_id);
   });
 
   it('should throw error when user is not the owner of the comment', async () => {
@@ -102,6 +107,11 @@ describe('DeleteCommentUseCase', () => {
 
     await expect(deleteCommentUseCase.execute(userId, useCasePayload))
       .rejects.toThrowError('Anda tidak berhak mengakses resource ini');
+
+    // Verify the mock calls
+    expect(mockThreadRepository.existThread).toBeCalledWith(useCasePayload.thread_id);
+    expect(mockCommentRepository.findActiveCommentByIdAndUser)
+      .toBeCalledWith(userId, useCasePayload.comment_id);
   });
 
   it('should throw error when payload is missing required properties', async () => {

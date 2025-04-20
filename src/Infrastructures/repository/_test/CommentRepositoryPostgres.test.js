@@ -67,7 +67,15 @@ describe('CommentRepositoryPostgres', () => {
 
       // Assert
       expect(result).toHaveLength(1);
-      expect(result[0].id).toEqual('comment-123');
+      expect(result[0]).toStrictEqual({
+        id: 'comment-123',
+        owner: 'user-123',
+        content: 'dicoding',
+        thread_id: 'thread-123',
+        created_at: expect.any(Date),
+        updated_at: expect.any(Date),
+        deleted_at: null,
+      });
     });
 
     it('should throw NotFoundError when comment does not exist', async () => {

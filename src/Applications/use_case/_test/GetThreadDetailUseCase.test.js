@@ -103,7 +103,16 @@ describe('GetThreadDetailUseCase', () => {
     const threadDetail = await getThreadDetailUseCase.execute(threadId);
 
     // Assert
-    expect(threadDetail.comments).toEqual([]);
+    expect(threadDetail).toStrictEqual({
+      id: 'thread-123-no-comments',
+      title: 'Judul Thread Tanpa Komentar',
+      body: 'Isi Thread',
+      date: '2021-08-08T07:19:09.775Z',
+      username: 'dicoding',
+      comments: [],
+    });
+  
+    expect(mockThreadRepository.getThreadDetailById).toBeCalledWith(threadId);
   });
 
   it('should handle comments with a deleted_at timestamp', async () => {
@@ -149,19 +158,28 @@ describe('GetThreadDetailUseCase', () => {
     const threadDetail = await getThreadDetailUseCase.execute(threadId);
 
     // Assert
-    expect(threadDetail.comments).toEqual([
-      {
-        id: 'comment-123',
-        username: 'johndoe',
-        date: '2021-08-08T07:22:33.555Z',
-        content: 'sebuah comment',
-      },
-      {
-        id: 'comment-456',
-        username: 'janedoe',
-        date: '2021-08-08T07:25:00.000Z',
-        content: '**komentar telah dihapus**',
-      },
-    ]);
+    expect(threadDetail).toStrictEqual({
+      id: 'thread-123-with-deleted-comments',
+      title: 'Judul Thread',
+      body: 'Isi Thread',
+      date: '2021-08-08T07:19:09.775Z',
+      username: 'dicoding',
+      comments: [
+        {
+          id: 'comment-123',
+          username: 'johndoe',
+          date: '2021-08-08T07:22:33.555Z',
+          content: 'sebuah comment',
+        },
+        {
+          id: 'comment-456',
+          username: 'janedoe',
+          date: '2021-08-08T07:25:00.000Z',
+          content: '**komentar telah dihapus**',
+        },
+      ],
+    });
+  
+    expect(mockThreadRepository.getThreadDetailById).toBeCalledWith(threadId);
   });
 });
