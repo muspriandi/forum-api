@@ -43,4 +43,59 @@ describe('AddThreadUseCase', () => {
       body: useCasePayload.body,
     }));
   });
+
+  it('should throw error if title is missing', async () => {
+    const userId = 'user-123';
+    const invalidPayload = {
+      body: 'thread-body',
+    };
+
+    const useCase = new AddThreadUseCase({ threadRepository: {} });
+
+    await expect(useCase.execute(userId, invalidPayload))
+      .rejects
+      .toThrowError('ADD_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
+  });
+
+  it('should throw error if body is missing', async () => {
+    const userId = 'user-123';
+    const invalidPayload = {
+      title: 'thread-title',
+    };
+
+    const useCase = new AddThreadUseCase({ threadRepository: {} });
+
+    await expect(useCase.execute(userId, invalidPayload))
+      .rejects
+      .toThrowError('ADD_THREAD.NOT_CONTAIN_NEEDED_PROPERTY');
+  });
+
+  it('should throw error if title or body is not a string', async () => {
+    const userId = 'user-123';
+    const invalidPayload = {
+      title: 123,
+      body: ['not', 'a', 'string'],
+    };
+
+    const useCase = new AddThreadUseCase({ threadRepository: {} });
+
+    await expect(useCase.execute(userId, invalidPayload))
+      .rejects
+      .toThrowError('ADD_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION');
+  });
+  
+  it('should throw error if title is longer than 100 characters', async () => {
+    const userId = 'user-123';
+    const invalidPayload = {
+      title: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+        aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`,
+      body: 'valid body',
+    };
+
+    const useCase = new AddThreadUseCase({ threadRepository: {} });
+
+    await expect(useCase.execute(userId, invalidPayload))
+      .rejects
+      .toThrowError('ADD_THREAD.title_LIMIT_CHAR');
+  });
 });

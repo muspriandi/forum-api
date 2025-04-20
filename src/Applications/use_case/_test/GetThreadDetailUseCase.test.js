@@ -1,6 +1,5 @@
 const GetThreadDetailUseCase = require('../GetThreadDetailUseCase');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
-const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 
 describe('GetThreadDetailUseCase', () => {
   /**

@@ -49,4 +49,44 @@ describe('AddCommentUseCase', () => {
       content: 'content',
     }));
   });
+
+  it('should throw error when payload is missing required property', async () => {
+    // Arrange
+    const userId = 'user-123';
+    const invalidPayload = {
+      content: 'content',
+    };
+
+    const mockCommentRepository = new CommentRepository();
+    const mockThreadRepository = new ThreadRepository();
+
+    const addCommentUseCase = new AddCommentUseCase({
+      commentRepository: mockCommentRepository,
+      threadRepository: mockThreadRepository,
+    });
+
+    await expect(addCommentUseCase.execute(userId, invalidPayload))
+      .rejects
+      .toThrowError('ADD_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY');
+  });
+
+  it('should throw error when payload data type is incorrect', async () => {
+    const userId = 'user-123';
+    const invalidPayload = {
+      thread_id: 123,
+      content: 'content',
+    };
+
+    const mockCommentRepository = new CommentRepository();
+    const mockThreadRepository = new ThreadRepository();
+
+    const addCommentUseCase = new AddCommentUseCase({
+      commentRepository: mockCommentRepository,
+      threadRepository: mockThreadRepository,
+    });
+
+    await expect(addCommentUseCase.execute(userId, invalidPayload))
+      .rejects
+      .toThrowError('ADD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION');
+  });
 });
