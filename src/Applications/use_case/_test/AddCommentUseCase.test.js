@@ -28,26 +28,22 @@ describe('AddCommentUseCase', () => {
 
     /** mocking needed function */
     mockThreadRepository.existThread = jest.fn()
-    .mockImplementation(() => Promise.resolve());
+      .mockResolvedValue(true);
     mockCommentRepository.addComment = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockAddedComment));
+      .mockResolvedValue(mockAddedComment);
 
     /** creating use case instance */
-    const getCommentUseCase = new AddCommentUseCase({
+    const addCommentUseCase = new AddCommentUseCase({
       commentRepository: mockCommentRepository,
       threadRepository: mockThreadRepository,
     });
 
     // Action
-    const addedComment = await getCommentUseCase.execute(userId, useCasePayload);
+    const addedComment = await addCommentUseCase.execute(userId, useCasePayload);
 
     // Assert
     expect(mockThreadRepository.existThread).toBeCalledWith(useCasePayload.thread_id);
-    expect(addedComment).toStrictEqual(new AddedComment({
-      id: 'comment-123',
-      content: useCasePayload.content,
-      owner: 'user-123',
-    }));
+    expect(addedComment).toStrictEqual(mockAddedComment);
     expect(mockCommentRepository.addComment).toBeCalledWith(userId, new AddComment({
       thread_id: 'thread-123',
       content: 'content',

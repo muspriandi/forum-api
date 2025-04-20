@@ -27,16 +27,16 @@ describe('a AddedThread entities', () => {
     // Arrange
     const payload = {
       id: 'abc',
-      title:'abc',
+      title: 'abc',
       owner: 'abc',
     };
 
     // Action
-    const { title, body, owner } = new AddedThread(payload);
+    const { id, title, owner } = new AddedThread(payload);
 
     // Assert
+    expect(id).toEqual(payload.id);
     expect(title).toEqual(payload.title);
-    expect(body).toEqual(payload.body);
     expect(owner).toEqual(payload.owner);
   });
 });

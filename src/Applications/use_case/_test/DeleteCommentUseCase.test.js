@@ -13,7 +13,7 @@ describe('DeleteCommentUseCase', () => {
     const userId = 'user-123';
     const useCasePayload = {
       thread_id: 'thread-123',
-      comment_id: 'comment_id',
+      comment_id: 'comment-123',
     };
     const mockCommentData = [
       {
@@ -30,24 +30,27 @@ describe('DeleteCommentUseCase', () => {
 
     /** mocking needed function */
     mockThreadRepository.existThread = jest.fn()
-    .mockImplementation(() => Promise.resolve());
-    mockCommentRepository.findActiveCommentById = jest.fn()
-    .mockImplementation(() => Promise.resolve(mockCommentData));
+      .mockResolvedValue(true);
+    mockCommentRepository.findActiveCommentByIdAndUser = jest.fn()
+      .mockResolvedValue(mockCommentData);
     mockCommentRepository.deleteCommentById = jest.fn()
-      .mockImplementation(() => Promise.resolve(useCasePayload.comment_id));
+      .mockResolvedValue();
 
     /** creating use case instance */
-    const getCommentUseCase = new DeleteCommentUseCase({
+    const deleteCommentUseCase = new DeleteCommentUseCase({
       commentRepository: mockCommentRepository,
       threadRepository: mockThreadRepository,
     });
 
     // Action
-    const deleteComment = await getCommentUseCase.execute(userId, useCasePayload);
+    await deleteCommentUseCase.execute(userId, useCasePayload);
 
     // Assert
     expect(mockThreadRepository.existThread).toBeCalledWith(useCasePayload.thread_id);
-    expect(mockCommentRepository.findActiveCommentById).toBeCalledWith(useCasePayload.comment_id);
+    expect(mockCommentRepository.findActiveCommentByIdAndUser)
+      .toBeCalledWith(userId, useCasePayload.comment_id);
+    expect(mockCommentRepository.deleteCommentById)
+      .toBeCalledWith(useCasePayload.comment_id);
   });
 
   it('should throw NotFoundError when comment is not found', async () => {
@@ -57,14 +60,43 @@ describe('DeleteCommentUseCase', () => {
       thread_id: 'thread-123',
       comment_id: 'comment-xyz',
     };
+
+    const mockCommentRepository = new CommentRepository();
+    const mockThreadRepository = new ThreadRepository();
+
+    mockThreadRepository.existThread = jest.fn()
+      .mockResolvedValue(true);
+    mockCommentRepository.findActiveCommentByIdAndUser = jest.fn()
+      .mockImplementation(() => {
+        throw new NotFoundError('comment tidak tersedia');
+      });
+
+    const deleteCommentUseCase = new DeleteCommentUseCase({
+      commentRepository: mockCommentRepository,
+      threadRepository: mockThreadRepository,
+    });
+
+    // Action & Assert
+    await expect(deleteCommentUseCase.execute(userId, useCasePayload))
+      .rejects
+      .toThrowError(NotFoundError);
+  });
+
+  it('should throw NotFoundError when thread does not exist', async () => {
+    // Arrange
+    const userId = 'user-123';
+    const useCasePayload = {
+      thread_id: 'thread-not-exist',
+      comment_id: 'comment-123',
+    };
   
     const mockCommentRepository = new CommentRepository();
     const mockThreadRepository = new ThreadRepository();
   
     mockThreadRepository.existThread = jest.fn()
-      .mockResolvedValue();
-    mockCommentRepository.findActiveCommentById = jest.fn()
-      .mockResolvedValue([]); // comment not found
+      .mockImplementation(() => {
+        throw new NotFoundError('thread tidak tersedia');
+      });
   
     const deleteCommentUseCase = new DeleteCommentUseCase({
       commentRepository: mockCommentRepository,
@@ -84,7 +116,7 @@ describe('DeleteCommentUseCase', () => {
       thread_id: 'thread-123',
       comment_id: 'comment-123',
     };
-  
+
     const mockCommentData = [
       {
         id: 'comment-123',
@@ -93,23 +125,25 @@ describe('DeleteCommentUseCase', () => {
         owner: 'user-123', // different owner
       }
     ];
-  
+
     const mockCommentRepository = new CommentRepository();
     const mockThreadRepository = new ThreadRepository();
-  
+
     mockThreadRepository.existThread = jest.fn()
-      .mockResolvedValue();
-    mockCommentRepository.findActiveCommentById = jest.fn()
-      .mockResolvedValue(mockCommentData);
-  
+      .mockResolvedValue(true);
+    mockCommentRepository.findActiveCommentByIdAndUser = jest.fn()
+      .mockImplementation(() => {
+        throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
+      });
+
     const deleteCommentUseCase = new DeleteCommentUseCase({
       commentRepository: mockCommentRepository,
       threadRepository: mockThreadRepository,
     });
-  
+
     // Action & Assert
     await expect(deleteCommentUseCase.execute(userId, useCasePayload))
       .rejects
       .toThrowError(AuthorizationError);
-  });  
+  });
 });
