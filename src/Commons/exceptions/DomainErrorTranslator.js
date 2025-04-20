@@ -31,6 +31,9 @@ DomainErrorTranslator._directories = {
 
   'DELETE_COMMENT.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('tidak dapat menghapus comment karena properti yang dibutuhkan tidak ada'),
   'DELETE_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat menghapus comment karena tipe data tidak sesuai'),
+
+  'DETAIL_THREAD.INVALID_INPUT': new InvariantError('harus memiliki minimal satu thread'),
+  'DETAIL_THREAD.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('harus memiliki attribut thread_id, title, body, thread_created_at dan thread_username'),
 };
 
 module.exports = DomainErrorTranslator;

@@ -1,5 +1,6 @@
 const GetThreadDetailUseCase = require('../GetThreadDetailUseCase');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
+const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 
 describe('GetThreadDetailUseCase', () => {
   /**
@@ -9,7 +10,7 @@ describe('GetThreadDetailUseCase', () => {
     // Arrange
     const threadId = 'thread-123';
 
-    const mockThreadDetail = [
+    const mockThreadDetail = new DetailThread([
       {
         thread_id: 'thread-123',
         title: 'Judul Thread',
@@ -34,7 +35,7 @@ describe('GetThreadDetailUseCase', () => {
         content: 'komentar yang sudah dihapus',
         comment_deleted_at: '2021-08-09T07:25:00.000Z',
       },
-    ];
+    ]);
 
     /** creating dependency of use case */
     const mockThreadRepository = new ThreadRepository();
@@ -52,7 +53,7 @@ describe('GetThreadDetailUseCase', () => {
     const threadDetail = await getThreadDetailUseCase.execute(threadId);
 
     // Assert
-    expect(threadDetail).toStrictEqual({
+    expect(threadDetail).toEqual({
       id: 'thread-123',
       title: 'Judul Thread',
       body: 'Isi Thread',
@@ -81,7 +82,7 @@ describe('GetThreadDetailUseCase', () => {
     // Arrange
     const threadId = 'thread-123-no-comments';
 
-    const mockThreadDetail = [
+    const mockThreadDetail = new DetailThread([
       {
         thread_id: 'thread-123-no-comments',
         title: 'Judul Thread Tanpa Komentar',
@@ -89,7 +90,7 @@ describe('GetThreadDetailUseCase', () => {
         thread_created_at: '2021-08-08T07:19:09.775Z',
         thread_username: 'dicoding',
       }
-    ];
+    ]);
 
     const mockThreadRepository = new ThreadRepository();
     mockThreadRepository.getThreadDetailById = jest.fn()
@@ -103,7 +104,7 @@ describe('GetThreadDetailUseCase', () => {
     const threadDetail = await getThreadDetailUseCase.execute(threadId);
 
     // Assert
-    expect(threadDetail).toStrictEqual({
+    expect(threadDetail).toEqual({
       id: 'thread-123-no-comments',
       title: 'Judul Thread Tanpa Komentar',
       body: 'Isi Thread',
@@ -111,7 +112,7 @@ describe('GetThreadDetailUseCase', () => {
       username: 'dicoding',
       comments: [],
     });
-  
+
     expect(mockThreadRepository.getThreadDetailById).toBeCalledWith(threadId);
   });
 
@@ -119,7 +120,7 @@ describe('GetThreadDetailUseCase', () => {
     // Arrange
     const threadId = 'thread-123-with-deleted-comments';
 
-    const mockThreadDetail = [
+    const mockThreadDetail = new DetailThread([
       {
         thread_id: 'thread-123-with-deleted-comments',
         title: 'Judul Thread',
@@ -144,7 +145,7 @@ describe('GetThreadDetailUseCase', () => {
         content: 'komentar yang sudah dihapus',
         comment_deleted_at: '2021-08-09T07:25:00.000Z',
       },
-    ];
+    ]);
 
     const mockThreadRepository = new ThreadRepository();
     mockThreadRepository.getThreadDetailById = jest.fn()
@@ -158,7 +159,7 @@ describe('GetThreadDetailUseCase', () => {
     const threadDetail = await getThreadDetailUseCase.execute(threadId);
 
     // Assert
-    expect(threadDetail).toStrictEqual({
+    expect(threadDetail).toEqual({
       id: 'thread-123-with-deleted-comments',
       title: 'Judul Thread',
       body: 'Isi Thread',
@@ -179,7 +180,7 @@ describe('GetThreadDetailUseCase', () => {
         },
       ],
     });
-  
+
     expect(mockThreadRepository.getThreadDetailById).toBeCalledWith(threadId);
   });
 });

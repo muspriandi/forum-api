@@ -3,6 +3,7 @@ const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const AddThread = require('../../../Domains/threads/entities/AddThread');
 const AddedThread = require('../../../Domains/threads/entities/AddedThread');
+const DetailThread = require('../../../Domains/threads/entities/DetailThread');
 const pool = require('../../database/postgres/pool');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
@@ -104,15 +105,17 @@ describe('ThreadRepositoryPostgres', () => {
       const result = await threadRepository.getThreadDetailById('thread-123');
 
       // Assert
-      expect(result).toBeInstanceOf(Array);
-      expect(result[0]).toMatchObject({
-        thread_id: 'thread-123',
-        title: 'Judul Thread',
-        body: 'Isi Thread',
-        thread_username: 'dicoding',
-        comment_id: 'comment-123',
+      expect(result).toBeInstanceOf(DetailThread);
+      expect(result.id).toBe('thread-123');
+      expect(result.title).toBe('Judul Thread');
+      expect(result.body).toBe('Isi Thread');
+      expect(result.username).toBe('dicoding');
+      expect(result.comments).toHaveLength(1);
+      expect(result.comments[0]).toEqual({
+        id: 'comment-123',
+        username: 'johndoe',
+        date: expect.any(Date),
         content: 'Komentar pertama',
-        comment_username: 'johndoe',
       });
     });
 
