@@ -80,4 +80,20 @@ describe('HTTP server', () => {
     expect(responseJson.status).toEqual('success');
     expect(responseJson.userId).toEqual('user-123'); // The user id in the token should match
   });
+
+   describe('when GET /', () => {
+    it('should return 200 and hello world', async () => {
+      // Arrange
+      const server = await createServer({});
+      // Action
+      const response = await server.inject({
+        method: 'GET',
+        url: '/',
+      });
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.value).toEqual('Hello world!');
+    });
+  });
 });
